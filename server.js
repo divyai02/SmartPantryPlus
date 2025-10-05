@@ -376,7 +376,7 @@ app.get('/api/preferences/:userId', async (req, res) => {
   }
 });
 
-// Save user preferences TO SUPABASE
+// Save user preferences TO SUPABASE - FIXED VERSION
 app.post('/api/preferences/:userId', async (req, res) => {
   const userId = parseInt(req.params.userId);
   const { allergies, diets, notifications_enabled } = req.body;
@@ -389,27 +389,28 @@ app.post('/api/preferences/:userId', async (req, res) => {
   const dietsArray = Array.isArray(diets) ? diets : [];
   
   try {
+    // Use UPDATE instead of UPSERT since the record already exists
     const { data, error } = await supabase
       .from('user_preferences')
-      .upsert({
-        user_id: userId,
+      .update({
         allergies: allergiesArray,
         diet_preferences: dietsArray,
         notifications_enabled: notifications_enabled !== undefined ? notifications_enabled : true,
         updated_at: new Date().toISOString()
       })
+      .eq('user_id', userId)
       .select()
       .single();
     
     if (error) {
-      console.error('❌ Supabase save error:', error);
+      console.error('❌ Supabase update error:', error);
       return res.json({ 
         success: false, 
         message: 'Failed to save preferences' 
       });
     }
     
-    console.log('✅ Preferences saved to Supabase for user:', userId);
+    console.log('✅ Preferences updated in Supabase for user:', userId);
     res.json({
       success: true,
       message: 'Preferences saved successfully!',
@@ -427,7 +428,6 @@ app.post('/api/preferences/:userId', async (req, res) => {
     });
   }
 });
-
 // ==================== BARCODE SCANNER API ====================
 app.post('/api/scan-barcode', (req, res) => {
   const { barcode } = req.body;
@@ -565,4 +565,5 @@ app.listen(PORT, () => {
   console.log(`⚡ Preferences API: /api/preferences/:userId`);
   console.log(`🔐 Login API: /api/login`);
   console.log(`🌐 Open: http://localhost:${PORT}`);
+
 });
