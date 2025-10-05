@@ -677,14 +677,35 @@ function getCategoryFromProduct(product) {
     return 'other';
 }
 
-// 🆕 AUTOMATIC BARCODE HANDLING
+// 🆕 AUTOMATIC BARCODE HANDLING - FIXED VERSION
 async function handleRealScannedBarcode(barcodeData, format) {
     console.log(`📷 Scanned barcode: ${barcodeData}`);
     stopScanner();
     showScanningMessage('Searching global food databases...');
     
     const productInfo = await lookupProductOnline(barcodeData);
-    await autoAddToPantry(productInfo, barcodeData);
+    
+    // 🚨 FIX: Automatically add to pantry after scanning
+    if (productInfo && productInfo.name) {
+        console.log('✅ Product found, adding to pantry:', productInfo);
+        
+        // Calculate expiry date (7 days from now)
+        const expiryDate = new Date();
+        expiryDate.setDate(expiryDate.getDate() + 7);
+        const expiryString = expiryDate.toISOString().split('T')[0];
+        
+        // Add to pantry directly
+        await saveItemToBackend(productInfo.name, productInfo.category, expiryString, 1);
+        
+        showSuccessMessage(`✅ Added "${productInfo.name}" to pantry!`);
+        
+        // Refresh pantry if on pantry tab
+        if (document.getElementById('pantry')?.classList.contains('active')) {
+            loadPantryItemsFromBackend();
+        }
+    } else {
+        showErrorMessage('❌ Could not find product information');
+    }
 }
 
 async function autoAddToPantry(productInfo, barcodeData) {
@@ -1586,4 +1607,5 @@ document.addEventListener('click', function(e) {
         console.log('📊 Reports tab clicked - loading data...');
         setTimeout(loadReportsData, 100);
     }
+
 });
