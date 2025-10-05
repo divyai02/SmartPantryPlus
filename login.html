@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pantry+ Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="dashboard-header">
+        <div class="header-content">
+            <div class="logo">
+                <div class="logo-icon">🍳</div>
+                <h1>Pantry+</h1>
+            </div>
+            <div class="user-info">
+                <div class="user-avatar">👨‍🍳</div>
+                <div>
+                    <div class="user-name">Welcome, Chef!</div>
+                    <div class="user-status">Allergy Safe Mode: Active</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Navigation Tabs -->
+        <nav class="nav-tabs">
+            <div class="tab active" data-tab="overview">
+                <i class="fas fa-home"></i>Overview
+            </div>
+            <div class="tab" data-tab="pantry">
+                <i class="fas fa-utensils"></i>My Pantry
+            </div>
+            <div class="tab" data-tab="recipes">
+                <i class="fas fa-book"></i>Recipes
+            </div>
+            <div class="tab" data-tab="shopping">
+                <i class="fas fa-shopping-cart"></i>Shopping List
+            </div>
+            <div class="tab" data-tab="allergy">
+                <i class="fas fa-allergies"></i>Allergy Settings
+            </div>
+            <div class="tab" data-tab="reports">
+                <i class="fas fa-chart-bar"></i>Reports
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <div class="dashboard-container">
+        <!-- Overview Tab - SIMPLIFIED -->
+        <div class="tab-content active" id="overview">
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <i class="fas fa-apple-alt"></i>
+                    <div class="stat-number" id="pantryCount">0</div>
+                    <div>Pantry Items</div>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-clock"></i>
+                    <div class="stat-number" id="expiringCount">0</div>
+                    <div>Expiring Soon</div>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-utensil-spoon"></i>
+                    <div class="stat-number" id="safeRecipesCount">0</div>
+                    <div>Safe Recipes</div>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-heart"></i>
+                    <div class="stat-number" id="allergyFiltersCount">0</div>
+                    <div>Allergy Filters</div>
+                </div>
+            </div>
+
+            <!-- Expiry Alerts -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">🚨 Expiry Alerts</h2>
+                    <button class="btn" onclick="loadOverviewData()">
+                        <i class="fas fa-sync"></i> Refresh
+                    </button>
+                </div>
+                <div id="expiryAlertsContainer">
+                    <div class="loading-alerts">🔄 Loading expiry alerts...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pantry Tab -->
+        <div class="tab-content" id="pantry">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">🍎 My Pantry Items</h2>
+                    <div class="action-buttons">
+                        <button class="btn" id="addItemBtn"><i class="fas fa-plus"></i> Add Item</button>
+                        <button class="btn" id="scanItemBtn" style="background: var(--accent);">
+                            <i class="fas fa-barcode"></i> Scan Item
+                        </button>
+                    </div>
+                </div>
+                <div class="pantry-grid">
+                    <!-- Items will be loaded dynamically from JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Recipes Tab -->
+        <div class="tab-content" id="recipes">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">🍳 Smart Recipe Suggestions</h2>
+                    <div class="action-buttons">
+                        <button class="btn" onclick="refreshRecipes()">
+                            <i class="fas fa-sync"></i> Refresh Recipes
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="recipe-info">
+                    <p>📊 Recipes are automatically suggested based on your current pantry items</p>
+                </div>
+
+                <div class="recipes-container" id="recipesContainer">
+                    <div class="loading-recipes">
+                        <p>🔄 Click 'Refresh Recipes' to see suggestions</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Shopping List Tab -->
+        <div class="tab-content" id="shopping">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">🛒 Smart Shopping List</h2>
+                    <div class="action-buttons">
+                        <button class="btn" onclick="addManualShoppingItem()">
+                            <i class="fas fa-plus"></i> Add Item
+                        </button>
+                        <button class="btn"><i class="fas fa-magic"></i> Auto-generate</button>
+                    </div>
+                </div>
+                <div class="shopping-list">
+                    <!-- Shopping items will be loaded from backend automatically -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Allergy Settings Tab -->
+        <div class="tab-content" id="allergy">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">⚡ Allergy & Preference Settings</h2>
+                </div>
+                
+                <div class="allergy-filters">
+                    <div class="allergy-option">
+                        <input type="checkbox" id="dairy" checked>
+                        <span class="allergy-icon">🥛</span>
+                        <label for="dairy"><strong>Avoid Dairy</strong><br><small>Milk, cheese, yogurt</small></label>
+                    </div>
+                    <div class="allergy-option">
+                        <input type="checkbox" id="nuts" checked>
+                        <span class="allergy-icon">🥜</span>
+                        <label for="nuts"><strong>Avoid Nuts</strong><br><small>Peanuts, almonds, walnuts</small></label>
+                    </div>
+                    <div class="allergy-option">
+                        <input type="checkbox" id="gluten">
+                        <span class="allergy-icon">🌾</span>
+                        <label for="gluten"><strong>Gluten Free</strong><br><small>Wheat, barley, rye</small></label>
+                    </div>
+                    <div class="allergy-option">
+                        <input type="checkbox" id="eggs">
+                        <span class="allergy-icon">🥚</span>
+                        <label for="eggs"><strong>Egg Free</strong><br><small>All egg products</small></label>
+                    </div>
+                    <div class="allergy-option">
+                        <input type="checkbox" id="seafood">
+                        <span class="allergy-icon">🐟</span>
+                        <label for="seafood"><strong>Seafood Free</strong><br><small>Fish, shellfish</small></label>
+                    </div>
+                    <div class="allergy-option">
+                        <input type="checkbox" id="soy">
+                        <span class="allergy-icon">🥢</span>
+                        <label for="soy"><strong>Soy Free</strong><br><small>Tofu, soy sauce</small></label>
+                    </div>
+                </div>
+                
+                <div class="action-buttons">
+                    <button class="btn" onclick="addNewAllergy()"><i class="fas fa-plus"></i> Add Allergy</button>
+                    <button class="btn" onclick="saveAllPreferences()"><i class="fas fa-save"></i> Save All</button>
+                    <button class="btn" onclick="clearAllPreferences()" style="background: #6c757d;"><i class="fas fa-broom"></i> Clear All</button>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">❤️ Dietary Preferences</h2>
+                </div>
+                
+                <div class="allergy-filters">
+                    <div class="allergy-option">
+                        <input type="checkbox" id="vegetarian">
+                        <span class="allergy-icon">🥕</span>
+                        <label for="vegetarian"><strong>Vegetarian</strong><br><small>No meat products</small></label>
+                    </div>
+                    <div class="allergy-option">
+                        <input type="checkbox" id="vegan">
+                        <span class="allergy-icon">🌱</span>
+                        <label for="vegan"><strong>Vegan</strong><br><small>No animal products</small></label>
+                    </div>
+                    <div class="allergy-option">
+                        <input type="checkbox" id="low-carb">
+                        <span class="allergy-icon">🍗</span>
+                        <label for="low-carb"><strong>Low Carb</strong><br><small>Keto-friendly</small></label>
+                    </div>
+                    <div class="allergy-option">
+                        <input type="checkbox" id="low-calorie">
+                        <span class="allergy-icon">⚖️</span>
+                        <label for="low-calorie"><strong>Low Calorie</strong><br><small>Weight management</small></label>
+                    </div>
+                </div>
+                
+                <div class="action-buttons">
+                    <button class="btn" onclick="addNewDietPreference()"><i class="fas fa-plus"></i> Add Diet</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reports Tab -->
+<div class="tab-content" id="reports">
+    <!-- Monthly Summary -->
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">📈 Monthly Summary</h2>
+        </div>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <i class="fas fa-utensils"></i>
+                <div class="stat-number" id="totalItems">0</div>
+                <div>Total Items</div>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-clock"></i>
+                <div class="stat-number" id="expiredItems">0</div>
+                <div>Expired Items</div>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-heart"></i>
+                <div class="stat-number" id="safeRecipesCount">0</div>
+                <div>Safe Recipes</div>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-filter"></i>
+                <div class="stat-number" id="activeFilters">0</div>
+                <div>Active Filters</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pantry Categories Chart -->
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">🥦 Pantry Categories</h2>
+        </div>
+        <div class="chart-container">
+            <div class="chart-bars" id="categoryChart">
+                <!-- Will be filled by JavaScript -->
+                <div class="loading-chart">📊 Loading chart data...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Expiry Timeline -->
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">📅 Expiry Timeline</h2>
+        </div>
+        <div class="timeline" id="expiryTimeline">
+            <div class="loading-timeline">🔄 Loading expiry timeline...</div>
+        </div>
+    </div>
+
+    <!-- Food Waste Stats -->
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">♻️ Food Waste Prevention</h2>
+        </div>
+        <div class="waste-stats">
+            <div class="waste-stat">
+                <div class="waste-icon">✅</div>
+                <div class="waste-info">
+                    <h4>Items Used Before Expiry</h4>
+                    <div class="waste-number" id="usedItems">0</div>
+                    <small>This month</small>
+                </div>
+            </div>
+            <div class="waste-stat">
+                <div class="waste-icon">⚠️</div>
+                <div class="waste-info">
+                    <h4>Items Expired</h4>
+                    <div class="waste-number" id="wastedItems">0</div>
+                    <small>Need attention</small>
+                </div>
+            </div>
+            <div class="waste-stat">
+                <div class="waste-icon">📊</div>
+                <div class="waste-info">
+                    <h4>Usage Rate</h4>
+                    <div class="waste-number" id="usageRate">0%</div>
+                    <small>Efficiency score</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+    <script src="script.js"></script>
+    <script src="recipe.js"></script>
+</body>
+</html>
